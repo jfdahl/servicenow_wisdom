@@ -1,2 +1,2 @@
 # servicenow_wisdom
-A collection of tidbits, snippets, and information about ServiceNow
+A collection of tidbits, snippets, and information about ServiceNow. Over the years, I have come across some interesting situations and snippets of code. This repository is intended to be my personal reference for ServiceNow work. I have several sources scattered around that I will be combining into this repository and I will add new content as I come up with or across it... if it interests me or that I might find useful.
