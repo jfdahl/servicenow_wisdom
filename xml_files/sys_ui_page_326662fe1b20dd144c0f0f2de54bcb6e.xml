@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2022-08-12 17:50:37">
+<sys_ui_page action="INSERT_OR_UPDATE">
+<category>general</category>
+<client_script><![CDATA[function getRelatedIssues( searchType ){
+	gel( 'messages' ).innerHTML = '';
+	gel( 'messages' ).style.fontColor = '#000000';
+	gel( 'messages' ).style.backgroundColor = '#ffffff';		
+	gel( 'results' ).innerHTML = '';
+	
+	var ga,
+		issueid = gel( 'issue_number' ).value,
+		hierarchy = gel( 'owning_hierarchy' ).value;
+	
+	if( !issueid && !hierarchy ){
+		postMessage( 'Invalid Request: Please enter an Issue ID or Issue Owning Hierarchy.', 'error' );
+		return;
+	}
+	
+	ga = new GlideAjax( 'sn_grc._search_utils' );
+	ga.addParam( 'sysparm_name', 'issueSearch' );
+	ga.addParam( 'sysparm_issueid', issueid );
+	ga.addParam( 'sysparm_hierarchy', hierarchy );
+	ga.addParam( 'sysparm_searchtype', searchType );
+	ga.getXMLAnswer( function( answer ){
+		
+		answer = JSON.parse( answer );
+		
+		if( answer.table.match( /^Invalid Request:/ ) ){
+			postMessage( answer.table, 'error' );
+		}
+		
+		else if( answer.table == 'No Records Found.' ){
+			postMessage( answer.table, 'info' );
+		}
+		
+		else{
+			gel( 'results' ).innerHTML = answer.table; 
+			gel( 'messages' ).innerHTML = '<a href="' + answer.url + '" target="_blank">Open in a new tab</a>';
+		}
+		
+	} );
+}
+
+function postMessage( content, type ){
+	var div = gel( 'messages' );
+	
+	if( type == 'error' ){
+		div.style.fontColor = 'red';
+		div.style.backgroundColor = '#fae6e6';
+	}
+	
+	div.innerHTML = content;
+}
+
+function clearField( fieldName ){
+// 	if( fieldName == 'owning_hierarchy' && gel( fieldName ).value ){
+// 		//reloadWindow( window );
+// 	}
+// 	else{
+// 		gel( fieldName ).setValue('');
+// 	}
+	gel( fieldName ).setValue('');
+}
+
+]]></client_script>
+<description></description>
+<direct>false</direct>
+<endpoint>sn_grc_customer search page.do</endpoint>
+<html><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+	<style>
+		table {
+		  font-family: arial, sans-serif;
+		  border-collapse: collapse;
+		  width: auto;
+		  margin:0 auto; 
+		}
+
+		td, th {
+		  border: 1px solid #dddddd;
+		  text-align: left;
+		  padding: 8px;
+		}
+
+		tr:nth-child(even) {
+		  background-color: #dddddd;
+		}
+		
+		input.button {
+		  padding: 5px;
+		}
+		
+	</style>
+	<g:ui_form>
+		<br/>
+		<div style="margin:0 auto; font-size:large; text-align:center;">Issue Quick Search</div>
+		<br/>
+		
+		<table id="inputs" >
+			<tr>
+				<td><label for="issue_number">Issue Number: </label></td>
+				<td><input type="text" id="issue_number" name="issue_number" onChange="clearField( 'owning_hierarchy' );" /></td>
+			</tr><tr>
+				<td><label for="owning_hierarchy">Owning Hierarchy: </label></td>
+			    <td><g:ui_reference name="owning_hierarchy" value="" displayvalue="" id="owning_hierarchy" table="sn_grc_advanced_corporate_risk_hierarchy" completer="AJAXTableCompleter"  onChange="clearField( 'issue_number' );" /></td>
+			</tr><tr>
+				<td colspan="2">
+					<input type="button" class="button" id="parent_search" name="parent_search" value="Parent Search" onclick="getRelatedIssues( 'Parent' );" />
+					<input type="button" class="button" id="dependent_search" name="dependent_search" value="Dependent Search" onclick="getRelatedIssues( 'Dependent' );" />
+					<input type="button" class="button" id="related_search" name="related_search" value="Related Search" onclick="getRelatedIssues( 'Related' );" />
+				</td>
+			</tr>
+		</table>
+		<br/>
+		
+		<div id="messages" style="width:auto; text-align:center; margin:0 auto; font-weight: 500; font-size: 120%"></div>
+		<br/>
+		<div id="results" style="width:auto; margin:0 auto;"></div>
+	</g:ui_form>
+
+</j:jelly>
+]]></html>
+<name>customer search page</name>
+<processing_script/>
+<sys_class_name>sys_ui_page</sys_class_name>
+<sys_created_by>U837851</sys_created_by>
+<sys_created_on>2022-07-11 13:42:45</sys_created_on>
+<sys_id>326662fe1b20dd144c0f0f2de54bcb6e</sys_id>
+<sys_mod_count>117</sys_mod_count>
+<sys_name>customer search page</sys_name>
+<sys_package display_value="GRC: Profiles" source="sn_grc">53f81621cb200200829cf865734c9c58</sys_package>
+<sys_policy/>
+<sys_scope display_value="GRC: Profiles">53f81621cb200200829cf865734c9c58</sys_scope>
+<sys_update_name>sys_ui_page_326662fe1b20dd144c0f0f2de54bcb6e</sys_update_name>
+<sys_updated_by>U837851</sys_updated_by>
+<sys_updated_on>2022-07-15 18:26:06</sys_updated_on>
+</sys_ui_page>
+</unload>
