@@ -104,6 +104,8 @@ if ( Array.prototype.find === undefined ) {
 ```
 
 ### Unique
+
+The array utilities in ServiceNow were created many versions ago and have not been updated as the JavaScript standard has matured. The code below will add a new method `.unique()` to the Array prototype. This version uses build-in function calls and runs significantly faster than the looping version in the ServiceNow array utilities script include. The only functional difference is that this version retains the FIRST instance of duplications in an array while the script include retains the LAST instance found.  
 ```javascript
 if( Array.prototype.unique === undefined ){
     Array.prototype.unique = function(){

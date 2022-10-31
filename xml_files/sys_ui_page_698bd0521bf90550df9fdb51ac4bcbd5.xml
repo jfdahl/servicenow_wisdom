@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2022-08-12 17:50:45">
+<sys_ui_page action="INSERT_OR_UPDATE">
+<category>general</category>
+<client_script><![CDATA[var url = document.URL.parseQuery();
+
+function checkMandatoryFields(self) {
+    var requestees = gel( 'requestee' ).selectedIndex;
+	var comments = trim( gel( 'comments' ).value );
+	var submitButton = gel( 'submit' );
+	
+	var requesteeSelected = requestees !== -1;
+	var commentsEntered = comments.length > 0;
+	
+	if( requesteeSelected && commentsEntered ){
+        submitButton.removeClassName('disabled');
+        submitButton.writeAttribute('disabled', false);
+	}
+	else{
+        submitButton.addClassName('disabled');
+        submitButton.writeAttribute('disabled', true);
+	}
+	
+}
+
+function handleCancel() {
+    var modal = GlideModal.get().destroy();
+}
+
+function handleSubmit() {
+	var requestees = getSelectedUsers();
+
+    var ga = new GlideAjax('sn_grc.IssueClientUtils');
+    ga.addParam('sysparm_name', 'requestInformation');
+    ga.addParam('sysparm_recordId', g_form.getUniqueValue());
+    ga.addParam('sysparm_comments', trim(gel('comments').value));
+	ga.addParam('sysparm_requestees', requestees );
+
+    ga.getXMLAnswer(function(answer) {
+        if (answer) {
+            GlideModal.get().destroy();
+            window.location.reload();
+        } else {
+            GlideModal.get().destroy();
+        }
+    });
+}
+
+function getSelectedUsers(){
+	var elRequestees = document.getElementById( 'requestee' ).selectedOptions,
+		selectedUsers = [];
+	
+	Object.keys( elRequestees ).forEach( function( opt ){
+		selectedUsers.push( elRequestees[ opt ].value );
+	});
+	
+	return selectedUsers.join(',');
+
+}
+
+
+// Added for multiple users
+function setUserDetails() {
+    var requesteeIDs = g_form.getValue( 'assigned_to' ),
+		ic = g_form.getValue( 'u_issue_owner_contact' ),
+		bcma = g_form.getValue( 'issue_manager' );
+	
+	if( ic.length > 0 ){
+		requesteeIDs += ',' + ic;
+	}
+
+	if( g_form.getValue('u_cmi_assignee') == g_user.userID ){
+		requesteeIDs += ',' + bcma;
+	}
+	
+	updateRequestees( requesteeIDs );
+	
+}
+
+function addOption( element, value, label ) {
+    var el = document.getElementById( element ),
+		opt = document.createElement( 'option' );
+	opt.value = value;
+	opt.innerHTML = label;
+	el.appendChild( opt );
+}
+
+function removeOptions( element ){
+	document.getElementById( element ).options.length = 0;
+}
+
+function updateRequestees( requesteeIDs ){
+// 	var requesteeType = document.getElementById( 'requesteeType' ).value;
+// 	removeOptions( 'requestee' );
+	
+// 	var requesteeIDs = g_form.getValue( requesteeType );
+	
+	var ga = new GlideAjax( 'sn_grc.IssueClientUtils' );
+	ga.addParam( 'sysparm_name', 'getInformationRequesteeNames' );
+	ga.addParam( 'sysparm_sysids', requesteeIDs );
+	ga.getXMLAnswer( addRequestees );
+	
+	function addRequestees( response ){
+		response = JSON.parse( response );
+		
+		Object.keys( response ).forEach( function( key ){
+			addOption( 'requestee', key, response[key] );
+		});
+	}
+	
+}
+
+//document.getElementById( 'requesteeType' ).addEventListener( 'change', updateRequestees );
+
+]]></client_script>
+<description/>
+<direct>false</direct>
+<endpoint>sn_grc_request_information.do</endpoint>
+<html><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+	<style>
+		#required_information .required-marker{
+		display: inline-block;
+		}
+		.required_information-textarea {
+		resize: vertical;
+		}
+	</style>
+	<div class="row" >		
+		<div style="padding: 0px 5px 20px 40px;"> ${gs.getMessage('Provide details of information needed.')} </div>
+		<div class="form-horizontal" id="required_information">
+			
+			<div class="form-group" id="users_text_area">
+				<label id="users_text_label" class="col-sm-3 col-sm-offset-1 control-label">$[gs.getMessage("Request information from")]</label>
+				<div class="col-sm-7">
+					<select id="requestee" name="requestee" class="form-control required_information-selectbox" multiple="true" onchange="checkMandatoryFields(this)">
+					</select>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label id="comments_label" class="col-sm-3 col-sm-offset-1 control-label"><span mandatory="true" class="required-marker"></span>${gs.getMessage('Comments')}</label>
+				<div class="col-sm-7">
+					<textarea id="comments" class="form-control required_information-textarea" type="text" onkeyup="checkMandatoryFields(this)"></textarea>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	<div class="modal-footer" style="padding-right:35px;"  >
+		<div class="row">
+			<div class="col-sm-6 clearfix pull-right">
+				<button id = "cancel" class="btn btn-default" onclick="handleCancel()">${gs.getMessage('Cancel')}</button>
+				<button id = "submit" class="btn btn-primary disabled" disabled="true" onclick="handleSubmit()">${gs.getMessage('Request')}</button>
+			</div>
+		</div>
+	</div>
+<script>
+	addLoadEvent( function() {
+	setUserDetails();
+	});
+</script>	
+</j:jelly>
+]]></html>
+<name>request_information</name>
+<processing_script/>
+<sys_class_name>sys_ui_page</sys_class_name>
+<sys_created_by>U837851</sys_created_by>
+<sys_created_on>2022-02-22 21:19:32</sys_created_on>
+<sys_id>698bd0521bf90550df9fdb51ac4bcbd5</sys_id>
+<sys_mod_count>56</sys_mod_count>
+<sys_name>request_information</sys_name>
+<sys_package display_value="GRC: Profiles" source="sn_grc">53f81621cb200200829cf865734c9c58</sys_package>
+<sys_policy/>
+<sys_scope display_value="GRC: Profiles">53f81621cb200200829cf865734c9c58</sys_scope>
+<sys_update_name>sys_ui_page_698bd0521bf90550df9fdb51ac4bcbd5</sys_update_name>
+<sys_updated_by>U837851</sys_updated_by>
+<sys_updated_on>2022-05-11 12:47:47</sys_updated_on>
+</sys_ui_page>
+</unload>

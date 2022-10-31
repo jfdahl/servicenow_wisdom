@@ -40,8 +40,8 @@ if (String.prototype.format === undefined) {
     };
 }
 
-if (String.prototype.pad === undefined) {
-    String.prototype.pad = function (pad_char, result_length) {
+if ( String.prototype.pad === undefined ) {
+    String.prototype.pad = function ( result_length, pad_char ) {
         /*
         Given a string character and an integer length,
         pad the string to the requested length with the character.
@@ -49,13 +49,13 @@ if (String.prototype.pad === undefined) {
         */
         var pad_length, padding, result,
             string = this.toString(),
-            pad_char = pad_char.toString(),
-            result_length = parseInt(result_length);
+            pad_char = pad_char ? pad_char.toString() : ' ',
+            result_length = parseInt( result_length );
 
-        if (Math.abs(result_length) <= this.length ){ return string; }
+        if ( Math.abs( result_length ) <= this.length ){ return string; }
 
-        pad_length = Math.abs(result_length) - this.length;
-        padding = pad_char.repeat(Math.abs(pad_length));
+        pad_length = Math.abs( result_length ) - this.length;
+        padding = pad_char.repeat( Math.abs( pad_length ) );
         
         if ( result_length > 0 ) {
             result = string + padding;
