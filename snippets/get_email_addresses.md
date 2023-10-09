@@ -12,6 +12,7 @@ function get_email_addresses( input_string ) {
     */
     
     var email_address_regex = /[a-z0-9.\-_]+@[a-z0-9.-]+\.[a-z]{2,}/g,
+	delimiter = '; ',
         email_address_list = input_string
             .toString()
             .toLowerCase()
@@ -27,7 +28,7 @@ function get_email_addresses( input_string ) {
 
     } 
 
-    return email_address_list.join( "; " );
+    return email_address_list.join( delimiter );
 
 }
 ```
